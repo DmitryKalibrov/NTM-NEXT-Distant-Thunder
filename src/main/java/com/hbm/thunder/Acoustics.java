@@ -45,6 +45,20 @@ public final class Acoustics {
         return lo;
     }
 
+    /**
+     * Source level (dB at 1 m) of the hbm sounds that carry far, NaN for the rest: hand guns ~150,
+     * turret cannons ~160 (heard ~6 km), rocket motors on launch ~170 (~7 km and more). Louder
+     * playback adds 10*log10(volume).
+     */
+    public static float shotLevel(String namespace, String path, float volume) {
+        if (!namespace.equals("hbm")) return Float.NaN;
+        float v = 10F * (float) Math.log10(Math.max(volume, 1F));
+        if (path.startsWith("weapon.fire.")) return 150F + v;
+        if (path.startsWith("turret.") && path.endsWith("_fire")) return 160F + v;
+        if (path.equals("weapon.rocket_flame") || path.equals("missile_take_off") || path.equals("entity.soyuz_takeoff")) return 170F + v;
+        return Float.NaN;
+    }
+
     /** demo: java -cp ... com.hbm.thunder.Acoustics (run with -ea) */
     public static void main(String[] args) {
         double gun = reach(150, Kind.GUN, AUDIBLE), big = reach(185, Kind.EXPLOSION, AUDIBLE), nuke = reach(250, Kind.NUKE, AUDIBLE);
@@ -52,6 +66,13 @@ public final class Acoustics {
         assert big > 10_000 && big < 25_000 : "big blast audible ~15 km, got " + big;
         assert nuke > 80_000 && nuke < 200_000 : "nuke audible ~100 km, got " + nuke;
         assert Math.abs(spl(150, reach(150, Kind.GUN, 90), Kind.GUN) - 90) < 0.01 : "reach inverts spl";
-        System.out.printf("gun %.0f m, big blast %.0f m, nuke %.0f m%n", gun, big, nuke);
+        float cannon = shotLevel("hbm", "turret.howard_fire", 5);
+        float launch = shotLevel("hbm", "weapon.rocket_flame", 10);
+        assert Float.isNaN(shotLevel("hbm", "turret.howard_reload", 4)) : "reload is no shot";
+        assert Float.isNaN(shotLevel("minecraft", "entity.generic.explode", 4)) : "vanilla sounds stay vanilla";
+        double c = reach(cannon, Kind.GUN, AUDIBLE), l = reach(launch, Kind.GUN, AUDIBLE);
+        assert c > gun && c < 8_000 : "turret cannon audible a bit beyond a rifle, got " + c;
+        assert l > c && l < 12_000 : "missile launch audible beyond a cannon, got " + l;
+        System.out.printf("gun %.0f m, cannon %.0f m, launch %.0f m, big blast %.0f m, nuke %.0f m%n", gun, c, l, big, nuke);
     }
 }
