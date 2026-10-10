@@ -1,0 +1,23 @@
+{
+  "required": true,
+  "package": "com.hbm.thunder.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "mixins": [
+    "NukeTorexMixin",
+    "MukeMixin",
+    "ExplosionVntMixin",
+    "ExplosionLargeMixin",
+    "ServerLevelSoundMixin"
+  ],
+  "client": [
+    "SoundEngineMixin",
+    "ChannelMixin",
+    "CameraMixin",
+    "SoundOptionsScreenMixin",
+    "SoundEngineAccessor",
+    "SoundManagerAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
