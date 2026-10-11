@@ -1,5 +1,6 @@
 package com.hbm.thunder.client;
 
+import com.hbm.thunder.Blasts;
 import com.hbm.thunder.Acoustics;
 import com.hbm.thunder.DistantThunder;
 import com.hbm.thunder.DistantThunder.Kind;
@@ -145,7 +146,8 @@ public final class DistantThunderClient {
                 ? 1F - 0.15F * (float) Math.min(d / 3_000, 1)
                 : 1F - 0.3F * (float) Math.min(d / 30_000, 1); // far blasts drop into a low roll
         // MASTER: only the master slider scales it, so the addon has its own volume (config "volume").
-        mc.getSoundManager().play(new DistantSound(p.sound(), SoundSource.MASTER, ear, src, volume, pitch,
+        Identifier sound = p.sound().equals(Blasts.INTERCEPT_MID) && d > Blasts.INTERCEPT_FAR_AT ? Blasts.INTERCEPT_FAR : p.sound();
+        mc.getSoundManager().play(new DistantSound(sound, SoundSource.MASTER, ear, src, volume, pitch,
                 Math.max(gainHF, 0.01F)));
     }
 

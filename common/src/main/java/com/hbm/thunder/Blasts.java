@@ -9,6 +9,10 @@ public final class Blasts {
     /** NTM's own far-explosion samples: a muffled distant boom, not a close crack. */
     private static final Identifier FAR_SMALL = Identifier.fromNamespaceAndPath("hbm", "weapon.explosion_small_far"),
             FAR_LARGE = Identifier.fromNamespaceAndPath("hbm", "weapon.explosion_large_far");
+    /** NTM Air Defense intercept samples; the client swaps mid for far past {@link #INTERCEPT_FAR_AT}. */
+    public static final Identifier INTERCEPT_MID = Identifier.fromNamespaceAndPath("ntm_air_defense", "sam.intercept_mid"),
+            INTERCEPT_FAR = Identifier.fromNamespaceAndPath("ntm_air_defense", "sam.intercept_far");
+    public static final double INTERCEPT_FAR_AT = 1500;
 
     // repeat filter for turret bursts and rocket motors (they replay their sound every tick or two)
     private static Identifier lastId;
@@ -28,6 +32,11 @@ public final class Blasts {
      */
     public static void warhead(Level level, double x, double y, double z, float size) {
         blast(level, x, y, z, size, 155F);
+    }
+
+    /** NTM Air Defense SAM warhead: like {@link #warhead}, with its own samples. It plays the close one itself (64 blocks). */
+    public static void intercept(ServerLevel level, double x, double y, double z, float size) {
+        DistantThunder.emit(level, x, y, z, DistantThunder.Kind.EXPLOSION, 155F + 20F * (float) Math.log10(size), INTERCEPT_MID, 64);
     }
 
     private static void blast(Level level, double x, double y, double z, float size, float base) {

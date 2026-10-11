@@ -30,6 +30,9 @@ abstract class VanillaExplodeMixin {
                                float radius, boolean fire, Level.ExplosionInteraction interaction, ParticleOptions small,
                                ParticleOptions large, WeightedList<ExplosionParticleInfo> particles, Holder<SoundEvent> sound,
                                CallbackInfo ci) {
-        if (source != null && source.getClass().getName().startsWith("com.hbm.")) Blasts.warhead((ServerLevel) (Object) this, x, y, z, radius);
+        if (source == null) return;
+        String name = source.getClass().getName();
+        if (name.equals("com.hbm.airdefense.EntitySAM")) Blasts.intercept((ServerLevel) (Object) this, x, y, z, radius);
+        else if (name.startsWith("com.hbm.")) Blasts.warhead((ServerLevel) (Object) this, x, y, z, radius);
     }
 }

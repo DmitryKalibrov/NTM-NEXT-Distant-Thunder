@@ -82,7 +82,8 @@ final class Room {
         float tBright = hits > 0 ? (float) (hf / hits) : 0.6F;
 
         // Open field ~0, forest/village a hint, house a short slap, cave the full tail.
-        float tSend = Math.clamp((enclosure - 0.3F) / 0.55F, 0F, 1F) * mat;
+        // Under water the direct sound is muffled (Deafness); an unfiltered bright tail would give it away.
+        float tSend = Deafness.underwater(mc) ? 0F : Math.clamp((enclosure - 0.3F) / 0.55F, 0F, 1F) * mat;
         float tDecay = Math.clamp(0.25F + size * 0.22F, 0.25F, 9F) * (0.35F + 0.65F * enclosure) * (0.3F + 0.7F * mat);
         float tDelay = Math.clamp(size * 2 / 343F, 0.004F, 0.3F);
 
