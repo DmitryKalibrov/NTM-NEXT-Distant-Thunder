@@ -39,7 +39,7 @@
 
 ## Установка
 
-Fabric 26.2. Положить jar в `mods` **на сервере и на клиенте**: сервер сообщает дальним игрокам о взрыве. В одиночной игре достаточно положить в `mods`. Требует `hbm` (NTM-NEXT) и Fabric API.
+Fabric или NeoForge 26.2. Положить jar в `mods` **на сервере и на клиенте**: сервер сообщает дальним игрокам о взрыве. В одиночной игре достаточно положить в `mods`. Требует `hbm` (NTM-NEXT). В каждом релизе два jar: `ntm-next-distant-thunder-fabric-*.jar` (нужен Fabric API) и `ntm-next-distant-thunder-neoforge-*.jar`.
 
 ## Конфиг `config/ntm_distant_thunder.properties`
 
@@ -66,6 +66,6 @@ Fabric 26.2. Положить jar в `mods` **на сервере и на кли
 ```
 gradlew build
 ```
-Нужен JDK 25. Jar: `build/libs/ntm-next-distant-thunder-1.0.0.jar`.
+Нужен JDK 25. Общий код — в `common/`, обвязки загрузчиков — в `fabric/` и `neoforge/`. Jar: `fabric/build/libs/` и `neoforge/build/libs/`. Если Maven Central недоступен: `gradlew -I tools/mirror.init.gradle.kts build`.
 
 Лицензия LGPL-3.0, как у NTM.
