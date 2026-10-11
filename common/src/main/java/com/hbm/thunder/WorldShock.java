@@ -2,11 +2,14 @@ package com.hbm.thunder;
 
 import java.util.ArrayList;
 import java.util.List;
-import net.fabricmc.fabric.api.tag.convention.v2.ConventionalBlockTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.core.SectionPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.server.level.ServerLevel;
@@ -22,9 +25,17 @@ import net.minecraft.world.level.chunk.LevelChunkSection;
  * Server side of the shockwave touching the world: windows shatter and, underground, stalactites
  * shake loose, each when the front (speed of sound) reaches it. Only already-loaded chunks.
  */
-final class WorldShock {
+public final class WorldShock {
 
     private record Hit(ServerLevel level, BlockPos pos, long due, boolean glass) {}
+
+    // conventional tags: the same "c:" ids on Fabric and NeoForge
+    private static final TagKey<Block> GLASS_BLOCKS = tag("glass_blocks"), GLASS_PANES = tag("glass_panes"),
+            GLASS_TINTED = tag("glass_blocks/tinted");
+
+    private static TagKey<Block> tag(String path) {
+        return TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath("c", path));
+    }
 
     private static final List<Hit> QUEUE = new ArrayList<>();
     private static final RandomSource RAND = RandomSource.create();
@@ -59,8 +70,8 @@ final class WorldShock {
     }
 
     private static boolean isGlass(BlockState s) {
-        return (s.is(ConventionalBlockTags.GLASS_BLOCKS) || s.is(ConventionalBlockTags.GLASS_PANES))
-                && !s.is(ConventionalBlockTags.GLASS_BLOCKS_TINTED); // tinted glass is blast glass
+        return (s.is(GLASS_BLOCKS) || s.is(GLASS_PANES))
+                && !s.is(GLASS_TINTED); // tinted glass is blast glass
     }
 
     private static boolean isStalactite(BlockState s) {
@@ -99,7 +110,7 @@ final class WorldShock {
         }
     }
 
-    static void tick() {
+    public static void tick() {
         int done = 0;
         for (int i = QUEUE.size() - 1; i >= 0 && done < PER_TICK; i--) {
             Hit hit = QUEUE.get(i);
@@ -118,7 +129,7 @@ final class WorldShock {
         }
     }
 
-    static void clear() {
+    public static void clear() {
         QUEUE.clear();
     }
 }

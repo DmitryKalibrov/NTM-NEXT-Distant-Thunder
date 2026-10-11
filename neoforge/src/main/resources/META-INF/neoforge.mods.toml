@@ -1,0 +1,32 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "LGPL-3.0-only"
+
+[[mods]]
+modId = "ntm_distant_thunder"
+version = "${version}"
+displayName = "NTM-NEXT: Distant Thunder"
+authors = "DmitryKalibrov"
+description = "The bomb drops 5 km away. A silent flash, then the ground trembles, and seconds later a deep rolling thunder washes over you as dust falls from the trees. Atmospheric, delayed, distance-muffled sound for NTM-NEXT nukes, explosions and gunfire, with camera shake and a sweeping dust shockwave."
+
+[[mixins]]
+config = "ntm_distant_thunder.mixins.json"
+
+[[dependencies.ntm_distant_thunder]]
+modId = "minecraft"
+type = "required"
+versionRange = "[26.2,26.3)"
+side = "BOTH"
+
+[[dependencies.ntm_distant_thunder]]
+modId = "neoforge"
+type = "required"
+versionRange = "[26.2.0.7-beta,26.3)"
+side = "BOTH"
+
+[[dependencies.ntm_distant_thunder]]
+modId = "hbm"
+type = "required"
+versionRange = "*"
+ordering = "AFTER"
+side = "BOTH"

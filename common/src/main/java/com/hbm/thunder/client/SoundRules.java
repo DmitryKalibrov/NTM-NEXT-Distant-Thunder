@@ -1,7 +1,6 @@
 package com.hbm.thunder.client;
 
 import com.hbm.thunder.DistantThunder;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.resources.sounds.SoundInstance;
@@ -13,7 +12,8 @@ import net.minecraft.world.phys.Vec3;
 /** Decides, on the client thread at play time, what Efx does to a sound. */
 public final class SoundRules {
 
-    static final boolean SOUND_PHYSICS = FabricLoader.getInstance().isModLoaded("sound_physics_remastered");
+    /** Sound Physics Remastered is installed; set by the loader entrypoint. */
+    public static boolean SOUND_PHYSICS;
 
     private SoundRules() {}
 

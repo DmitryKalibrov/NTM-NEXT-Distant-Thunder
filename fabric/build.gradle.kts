@@ -5,10 +5,14 @@ plugins {
 
 version = property("mod_version")!!
 group = "com.hbm.thunder"
-base.archivesName = "ntm-next-distant-thunder"
+base.archivesName = "ntm-next-distant-thunder-fabric"
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
+sourceSets.main {
+    java.srcDir("../common/src/main/java")
+    resources.srcDir("../common/src/main/resources")
+}
 
 dependencies {
     minecraft("com.mojang:minecraft:${property("minecraft_version")}")

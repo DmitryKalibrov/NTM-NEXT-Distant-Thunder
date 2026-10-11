@@ -6,12 +6,7 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.loader.api.FabricLoader;
+import java.util.function.BiConsumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
@@ -19,8 +14,11 @@ import net.minecraft.server.level.ServerPlayer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Config, packet registration and the server side: tell far-away players that something went boom. */
-public final class DistantThunder implements ModInitializer {
+/**
+ * Config and the server side: tell far-away players that something went boom. Loader entrypoints call
+ * {@link #init}, register {@link RumblePayload}, set {@link #sender} and drive {@link WorldShock}.
+ */
+public final class DistantThunder {
 
     public static final String ID = "ntm_distant_thunder";
     public static final Logger LOG = LoggerFactory.getLogger(ID);
@@ -42,17 +40,18 @@ public final class DistantThunder implements ModInitializer {
     /** Multiplier for the radius in which the shockwave shatters glass. */
     public static float glassRadius = 1F;
 
+    /** Sends a rumble packet to one player; set by the loader entrypoint. */
+    public static BiConsumer<ServerPlayer, RumblePayload> sender = (player, payload) -> {};
+    private static Path configDir;
+
     // Game-tick dedupe: a muke also fires an ExplosionVNT on the same spot in the same tick.
     private static long lastTick = Long.MIN_VALUE;
     private static double lastX, lastY, lastZ;
     private static float lastPower;
 
-    @Override
-    public void onInitialize() {
+    public static void init(Path configDir) {
+        DistantThunder.configDir = configDir;
         loadConfig();
-        PayloadTypeRegistry.clientboundPlay().register(RumblePayload.TYPE, RumblePayload.CODEC);
-        ServerTickEvents.END_SERVER_TICK.register(server -> WorldShock.tick());
-        ServerLifecycleEvents.SERVER_STOPPED.register(server -> WorldShock.clear());
     }
 
     /**
@@ -79,14 +78,14 @@ public final class DistantThunder implements ModInitializer {
         RumblePayload payload = new RumblePayload(x, y, z, (byte) kind.ordinal(), power, sound, (float) near, enclosed);
         double far = Math.min(Acoustics.reach(l0, kind, Acoustics.AUDIBLE), maxRange), far2 = far * far;
         for (ServerPlayer p : level.players()) {
-            if (p.distanceToSqr(x, y, z) < far2) ServerPlayNetworking.send(p, payload);
+            if (p.distanceToSqr(x, y, z) < far2) sender.accept(p, payload);
         }
     }
 
     public enum Kind { NUKE, MUKE, EXPLOSION, GUN }
 
     private static Path configFile() {
-        return FabricLoader.getInstance().getConfigDir().resolve(ID + ".properties");
+        return configDir.resolve(ID + ".properties");
     }
 
     private static void loadConfig() {

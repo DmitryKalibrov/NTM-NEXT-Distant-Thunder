@@ -6,11 +6,8 @@ import com.hbm.thunder.DistantThunder.Kind;
 import com.hbm.thunder.RumblePayload;
 import java.util.ArrayList;
 import java.util.List;
-import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -31,7 +28,7 @@ import net.minecraft.world.phys.Vec3;
  * distance and walls or echoing in a cave, a hard jolt, dust and stones from leaves and ceilings,
  * lamps flickering, and up close, ringing deafness. A dust ring sweeps over the land with it.
  */
-public final class DistantThunderClient implements ClientModInitializer {
+public final class DistantThunderClient {
 
     /** Fires once the front (speed m/s, started at tick start) has reached the player's current position. */
     private record Wave(Vec3 src, long start, double speed, Runnable action) {}
@@ -43,12 +40,13 @@ public final class DistantThunderClient implements ClientModInitializer {
     private static final RandomSource RAND = RandomSource.create();
     private static long tick;
 
-    @Override
-    public void onInitializeClient() {
-        ClientPlayNetworking.registerGlobalReceiver(RumblePayload.TYPE, (payload, context) -> receive(payload));
-        ClientTickEvents.END_CLIENT_TICK.register(DistantThunderClient::tick);
-        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(DistantThunder.ID, "flash"),
-                (graphics, delta) -> Flash.render(graphics));
+    /** HUD layer id of the blast flash; loaders register {@link #renderFlash} under it, on top of the HUD. */
+    public static final Identifier FLASH_LAYER = Identifier.fromNamespaceAndPath(DistantThunder.ID, "flash");
+
+    private DistantThunderClient() {}
+
+    public static void renderFlash(GuiGraphicsExtractor graphics) {
+        Flash.render(graphics);
     }
 
     private static Vec3 ear() {
@@ -60,7 +58,8 @@ public final class DistantThunderClient implements ClientModInitializer {
         return Acoustics.spl(p.power(), ear().distanceTo(new Vec3(p.x(), p.y(), p.z())), kind);
     }
 
-    private static void receive(RumblePayload p) {
+    /** A rumble packet arrived (on the client thread). */
+    public static void receive(RumblePayload p) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null) return;
         Kind kind = Kind.values()[p.kind()];
@@ -150,7 +149,8 @@ public final class DistantThunderClient implements ClientModInitializer {
                 Math.max(gainHF, 0.01F)));
     }
 
-    private static void tick(Minecraft mc) {
+    /** End of every client tick. */
+    public static void tick(Minecraft mc) {
         tick++;
         Shake.tick();
         Deafness.tick();

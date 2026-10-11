@@ -4,14 +4,22 @@
   "version": "${version}",
   "name": "NTM-NEXT: Distant Thunder",
   "description": "The bomb drops 5 km away. A silent flash, then the ground trembles, and seconds later a deep rolling thunder washes over you as dust falls from the trees. Atmospheric, delayed, distance-muffled sound for NTM-NEXT nukes, explosions and gunfire, with camera shake and a sweeping dust shockwave.",
-  "authors": ["DmitryKalibrov"],
+  "authors": [
+    "DmitryKalibrov"
+  ],
   "license": "LGPL-3.0-only",
   "environment": "*",
   "entrypoints": {
-    "main": ["com.hbm.thunder.DistantThunder"],
-    "client": ["com.hbm.thunder.client.DistantThunderClient"]
+    "main": [
+      "com.hbm.thunder.fabric.FabricEntry"
+    ],
+    "client": [
+      "com.hbm.thunder.fabric.FabricClientEntry"
+    ]
   },
-  "mixins": ["ntm_distant_thunder.mixins.json"],
+  "mixins": [
+    "ntm_distant_thunder.mixins.json"
+  ],
   "depends": {
     "fabricloader": ">=0.19.3",
     "fabric-api": "*",
