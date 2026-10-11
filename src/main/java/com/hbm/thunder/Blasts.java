@@ -6,7 +6,9 @@ import net.minecraft.world.level.Level;
 
 public final class Blasts {
 
-    private static final Identifier SOUND = Identifier.withDefaultNamespace("entity.generic.explode");
+    /** NTM's own far-explosion samples: a muffled distant boom, not a close crack. */
+    private static final Identifier FAR_SMALL = Identifier.fromNamespaceAndPath("hbm", "weapon.explosion_small_far"),
+            FAR_LARGE = Identifier.fromNamespaceAndPath("hbm", "weapon.explosion_large_far");
 
     // repeat filter for turret bursts and rocket motors (they replay their sound every tick or two)
     private static Identifier lastId;
@@ -17,8 +19,21 @@ public final class Blasts {
 
     /** Conventional NTM blast; NTM's own sound (volume 4) reaches 64 blocks. */
     public static void explosion(Level level, double x, double y, double z, float size) {
+        blast(level, x, y, z, size, 165F);
+    }
+
+    /**
+     * A small vanilla explosion set off by an NTM-family entity: SAM warheads, falling spent stages.
+     * Charges of a few kg, not bombs: 10 dB below a conventional blast of the same size.
+     */
+    public static void warhead(Level level, double x, double y, double z, float size) {
+        blast(level, x, y, z, size, 155F);
+    }
+
+    private static void blast(Level level, double x, double y, double z, float size, float base) {
         if (!(level instanceof ServerLevel server) || size < 2) return;
-        DistantThunder.emit(server, x, y, z, DistantThunder.Kind.EXPLOSION, 165F + 20F * (float) Math.log10(size), SOUND, 64);
+        DistantThunder.emit(server, x, y, z, DistantThunder.Kind.EXPLOSION, base + 20F * (float) Math.log10(size),
+                size >= 8 ? FAR_LARGE : FAR_SMALL, 64);
     }
 
     /**

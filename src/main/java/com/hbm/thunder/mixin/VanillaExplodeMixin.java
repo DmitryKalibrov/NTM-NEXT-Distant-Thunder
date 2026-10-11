@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 /**
  * Plain vanilla explosions set off by NTM-family entities (NTM itself, NTM Air Defense warheads and
  * spent stages): the one ServerLevel.explode every Level.explode overload ends in. Creepers, TNT and
- * the like stay vanilla. ExplosionLarge also ends up here; emit's same-tick dedupe drops the repeat.
+ * the like stay vanilla. ExplosionLarge also ends up here; emit's same-tick dedupe drops the quieter repeat.
  */
 @Mixin(ServerLevel.class)
 abstract class VanillaExplodeMixin {
@@ -30,6 +30,6 @@ abstract class VanillaExplodeMixin {
                                float radius, boolean fire, Level.ExplosionInteraction interaction, ParticleOptions small,
                                ParticleOptions large, WeightedList<ExplosionParticleInfo> particles, Holder<SoundEvent> sound,
                                CallbackInfo ci) {
-        if (source != null && source.getClass().getName().startsWith("com.hbm.")) Blasts.explosion((ServerLevel) (Object) this, x, y, z, radius);
+        if (source != null && source.getClass().getName().startsWith("com.hbm.")) Blasts.warhead((ServerLevel) (Object) this, x, y, z, radius);
     }
 }
